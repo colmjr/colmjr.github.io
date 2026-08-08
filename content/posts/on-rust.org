@@ -1,0 +1,8 @@
+#+title: What I feel about Rust as a beginner
+#+date: 2026-08-07
+#+draft: true
+
+As a beginner to Rust and to functional programming languages overall, I came from a background of C, C++ and a bit of python. All I was looking for was a statically typed lagnauge and memory safety, but what I found was much more. C++ is known for its bloat, and because it has so many features that make it hard to visualize in my head, I have had trouble using features past C++11 as a hobbyist. It just feels like many features exist in a "nerfed" way for the sake of backwards compatibility, and that I feel has really held the language back. In addition, references like [[https://en.cppreference.com/][C++ reference]] are a pain to read, especially with less experience with the language. I have always leaned torwards writing C style C++ code but of course with some very useful additions and data structures that make your life easier and provide some memory safety that C does not provide. Writing C has always felt like a breeze, probably since you write everything yourself you have to write so much boilerplate, and you feel productive(I love that feeling, dont get me wrong). But writing C++, on the one hand I was happy that I didn't have to hand roll everything myself, but I was still frustrated with the feeling of sluggishness commonly put together with the language. But when I learned Rust, that all changed.
+
+* How is Rust better (IMO)
+Now of course

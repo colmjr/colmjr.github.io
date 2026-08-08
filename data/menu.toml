@@ -1,0 +1,9 @@
+[[entries]]
+title = "all posts"
+
+  [entries.post_list]
+  section = "posts"
+
+[[entries]]
+title = "rss"
+url = "index.xml"
