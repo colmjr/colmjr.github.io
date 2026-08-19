@@ -1,8 +1,77 @@
 #+title: What I feel about Rust as a beginner
+#+author: Colm Rafferty
 #+date: 2026-08-07
-#+draft: true
+#+draft: false
 
 As a beginner to Rust and to functional programming languages overall, I came from a background of C, C++ and a bit of python. All I was looking for was a statically typed lagnauge and memory safety, but what I found was much more. C++ is known for its bloat, and because it has so many features that make it hard to visualize in my head, I have had trouble using features past C++11 as a hobbyist. It just feels like many features exist in a "nerfed" way for the sake of backwards compatibility, and that I feel has really held the language back. In addition, references like [[https://en.cppreference.com/][C++ reference]] are a pain to read, especially with less experience with the language. I have always leaned torwards writing C style C++ code but of course with some very useful additions and data structures that make your life easier and provide some memory safety that C does not provide. Writing C has always felt like a breeze, probably since you write everything yourself you have to write so much boilerplate, and you feel productive(I love that feeling, dont get me wrong). But writing C++, on the one hand I was happy that I didn't have to hand roll everything myself, but I was still frustrated with the feeling of sluggishness commonly put together with the language. But when I learned Rust, that all changed.
 
 * How is Rust better (IMO)
-Now of course
+A lot of these features have been ported from OCamel as far as I know (btw the first rust compiler was written in OCamel), but here are some of my favorite features in rust:
+** const as a default
+There is not much to say about this, and I am not a compiler expert, but in rust, every variable at declaration is assumed to be const, unless declared mutable! Take the following snippet:
+#+begin_src rust
+let x: u8 = 255; // This means that we declare a immutable variable x that is unsigned and 1 byte long
+// x = 123; < the following would error because you are mutating a immutable variable
+let mut x_mut: u8 = 42; // same as above but mutable
+x_mut = 123;
+#+end_src
+I am aware that at least in gcc, the compiler is able to do some optimizations if you declare a variable to be const, although I am evidently not an expert on this matter... So there is of course the small performance gain here, but I think that the best thing about immutable as default is that it makes your code more readable for other people, and they are more clear on what is mutable and what is not!
+btw: in most languages, even in a statically typed language like Rust, can do type inference, and that saves a lot of time, considering for example you have some custom struct wrapped in a Option, Arc<Mutex<T>> or something, this really comes in handy that you don't have to write the whole type.
+** Expressive enums
+Here is a direct example inside the Rust Book!
+#+begin_src rust
+struct Point {
+    x: u64,
+    y: u64,
+}
+enum Message {
+    Resize { width: u64, height: u64 },
+    Move(Point),
+    Echo(String),
+    ChangeColor(u8, u8, u8),
+    Quit,
+}
+#+end_src
+Instead of in C, where enums are just like macros for a number, for example:
+#+begin_src c
+enum Message { RESIZE, MOVE, ECHO, CHANGECOLOR, QUIT } // here RESIZE = 0, MOVE = 1, ECHO = 2, and so on
+#+end_src
+You have probably heard of many problems with C enums, just because you have problems such as if you have somewhere where you have Message x = RESIZE; then if (x == 1) {}, that would be a problem(not type safe). Additionally, if explicitly defined, there is no way to guarantee that each enum represents a different number. Also, in C NULL == 0 prints true(I now realize that of course with the right compile flags it will remind you that you are comparing pointer and non-pointer type in -Wenum-compare and -Wenum-conversion BUT IT STILL COMPILES). Rust enums are different, in that cargo will error if you try to compare a Message with an isize! Further more, rust enums can hold data within them! For example, Message::Move contains the data of a specific point, and Message::Echo contains a String within!
+** Actually good pattern matching
+I am aware that this feature seems to be ported from Haskell or OCamel, and I thank those FP languages for that! A lot of times in C and C++, match is not enough... Especially in Rust, you could have types such as Option<T>, which either is Some(some_type) or nothing(None)! This Option type is very useful on itself, but usually I would guess that languages would need to design specific methods to get some_type out of the Option<some_type>, and handle the None case... Well in Rust and pattern matching, this is very simple!
+#+begin_src rust
+fn is_odd(x: Option<i32>) -> Option<bool> {
+    match x {
+        Some(x) => Some(x % 2 != 0),
+        None => None,
+    }
+}
+assert_eq!(is_odd(Some(15), Some(true));
+assert_eq!(is_odd(None, None);
+#+end_src
+This is not a good way to write Rust, but it will suffice for this example: x is either Some(some number) or None. We match x, and if it is Some, we take out the inner number, and return a Option bool of whether it is odd, and if the value passed in is None, it will return None! Pattern matching is so much more advanced and fun than this toy example, but it will suffice for now.
+** Iterators/Streams combined with Closures
+This feature is similar to the lambda in C++, but a lot more elegant. Just look at the elegance of the following mapping of a vector [1, 2, 2, 3, 4, 5, 6] to double each: [2, 4, 4, 6, 8, 10, 12]:
+#+begin_src rust
+let outside_var = 2;
+let v = vec![1, 2, 2, 3, 4, 5, 6];
+let new_vec: Vec<_> = v.iter() // creates a lazy iterator over each element over the vector
+    .map(|x| {
+    println!("I am able to access {outside_var}");
+    x * 2
+}) // creates a lazy map from each item in the iterator to its double, and also prints(aka accesses an outside_var you would not be able to access implicitly in a function)
+    .collect(); // turns the mapping into a collection(here, Vec<_>)
+#+end_src
+Now I do want to point out some specifics about this small snippet of code: Iterators in rust are lazy, and that means if you don't run .collect() on them to turn them explicitly into a collection such as a Vec, this will not happen. When we use .map(closure), the inner closure is able to access anything in the scope that the outer code is able to access, and also still do the relevant mapping. Above was just a piece of code to show you that outer code is included in context, but of course this is toy code. Now if we compare this to C++, a equivalent lazy iterator would be std::views::transform in C++20. But this is not all: Rust provides many easy to use methods defined on iterators that take in closures: A few notable being .filter, .filter_map, .take_while, .find, .position, and the list goes on and on. These methods are not locked behind some esoteric standard library, and the documentation is easy to read!
+** And so on and so on
+* How is Rust bad?
+** Async
+I don't think I have to say a lot about async, but there are pros and cons on how Rust deals with async programming: First, Rust does not give you a language default runtime to manage tasks. There is a industry standard crate(tokio), and you are able to implement your own runtimes, but a lot of people including me complain a lot about it: First, is that because ownership and the borrow checker, oftentimes to satisfy the borrow checker, we need to annotate variables with the 'static lifetime, which means they are alive for the whole program. This is not the case for most variables, and a lot of people have said that this feels unlike Rust: The whole point is that the compiler takes care of lifetimes and references in their heads instead of having to keep all of that overhead in your brain. More, although this would extend this article by a lot so I will not go into depth, are the Send and Sync marker traits. I myself do not write a lot of async code, and so I have to say I do not have a lot of knowledge on this matter.
+** Compile times
+At this point, Rust is infamous for cargo's insane compile times: even with recompiles they still take an absurd amount of time. Why is this? Partly LLVM(I am aware that on first compile, Zig suffers as well on compile time because it compiles to a LLVM IR), partly monomorphization(basically when you use generics which are templates in C++, it generates type specific functions and runs them completely at runtime), partly proc macros(I am not very knowledgable about proc macros, so please consult another source on this, but since Rust's macros are so much more complex than other languages in that there is complicated pattern matching, and also there is a whole pipeline: syn for parsing into a ast, quote for ast->code, and proc-macro2 crate).
+** Error Handling
+I would actually argue error handling is better than most languages, but of course it comes with consequences: even with crates like anyhow, you either have to write a lot of boilerplate for error handling or just use the ? operator to propagate errors up, and there is no one error handling strategy. But there are also pros to this: The compiler will check if you have comprehensively done error handling or not, which we discussed a similar feature of the compiler in the previous chapter on pattern matching.
+** Prototyping
+Having compiler driven development can be a boon but also a curse: If you just want fast prototyping and the compiler to stop complaining, sometimes python or C++ is just the correct solution.
+
+Overall, I think that chosing Rust really depends on the use case: Prototyping is certainly not Rust's forte, but if you want to create a stable library with great performance and (mostly)great language features and don't mind large compile times, Rust is for you! Thanks for reading!
