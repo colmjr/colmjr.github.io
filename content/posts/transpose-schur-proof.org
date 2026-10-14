@@ -1,0 +1,4 @@
+#+title: Implementing ADT Rust style in other lanugages
+#+author: Colm Rafferty
+#+date: 2026-09-21 Mon
+#+draft: true

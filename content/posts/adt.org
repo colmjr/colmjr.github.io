@@ -1,0 +1,6 @@
+#+title: Implementing ADT Rust style in other lanugages
+#+author: Colm Rafferty
+#+date: 2026-08-23
+#+draft: true
+
+First, I want to clear a few things up before the implementation: I don't like using acronyms unless they are obvious to understand, so ADTs refer to algebraic data types.
