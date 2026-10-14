@@ -38,6 +38,10 @@ jobs:
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v5
+      - name: Setup Typst
+        uses: typst-community/setup-typst@v4
+      - name: Render typst blocks to SVG
+        run: python3 scripts/render_typst.py
       - name: Build with Hugo
         env:
           HUGO_CACHEDIR: ${{ runner.temp }}/hugo_cache

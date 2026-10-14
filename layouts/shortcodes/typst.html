@@ -1,0 +1,26 @@
+{{- /*
+  Inline a precompiled typst SVG. The body is hashed with SHA-1 and must
+  have been compiled by scripts/render_typst.py into assets/typst-gen/.
+
+  Usage:  {{< typst >}}$ mat(1, 2; 3, 4) ${{< /typst >}}
+          {{< typst inline=true >}}$ x^2 ${{< /typst >}}
+*/ -}}
+{{- $src := trim .Inner " \t\r\n" -}}
+{{- $hash := sha1 $src -}}
+{{- $inline := .Get "inline" -}}
+{{- if not (.Page.Store.Get "typst-css") -}}
+  {{- .Page.Store.Set "typst-css" true -}}
+<style>
+.typst-svg svg { max-width: 100%; }
+.typst-svg.typst-inline svg { height: 1.1em; width: auto; vertical-align: -0.15em; }
+.typst-svg.typst-display { display: block; text-align: center; margin: 1em 0; }
+.typst-missing { border: 1px dashed currentColor; padding: 0 0.3em; font-size: 0.85em; }
+</style>
+{{- end -}}
+{{- $svg := resources.Get (printf "typst-gen/%s.svg" $hash) -}}
+{{- with $svg -}}
+<span class="typst-svg {{ if $inline }}typst-inline{{ else }}typst-display{{ end }}">{{ .Content | safeHTML }}</span>
+{{- else -}}
+  {{- warnf "typst SVG %s missing; run scripts/render_typst.py" $hash -}}
+<code class="typst-missing">typst not rendered, run scripts/render_typst.py</code>
+{{- end -}}
