@@ -1,6 +1,6 @@
 #+title: Why I do things
 #+author: Colm Rafferty
-#+date: 2026-10-13 Tue
+#+date: 2026-10-13
 #+draft: false
 
 I intent this quick blog post just to be on my motivations with learning and doing stuff, but I have a few draft articles on a (I think?) original proof in linear algebra that I made up and formalized with AI(I say formalized as in typst formatting, just because I am too stupid and don't care enough just yet to spend time learning how to write typst beyond basic syntax, but I did already have the entire proof including a_11 == 0 case assumptions already on paper), and I have a draft on the use and implementation of ADTs in different languages, but I am not sure whether that one will be finalized.
